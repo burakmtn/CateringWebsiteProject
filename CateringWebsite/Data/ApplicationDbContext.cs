@@ -23,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
         builder.Entity<ApplicationUser>(entity =>
         {
             entity.Property(user => user.DisplayName).HasMaxLength(120);
+            entity.Property(user => user.LocationAddress).HasMaxLength(260);
             entity.Property(user => user.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
         });
 

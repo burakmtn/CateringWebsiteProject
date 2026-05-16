@@ -1,5 +1,6 @@
 using CateringWebsite.Data;
 using CateringWebsite.Models;
+using CateringWebsite.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("GoogleMaps"));
+builder.Services.AddHttpClient<IGoogleDistanceService, GoogleDistanceService>();
 
 var app = builder.Build();
 

@@ -44,6 +44,12 @@
                                 <a class="nav-link" asp-controller="User" asp-action="Home">Menus</a>
                             </li>
                         }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Profile" asp-action="Location">Location</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
@@ -65,10 +71,12 @@
             {
                 <a class="sidebar-link" asp-controller="Caretaker" asp-action="Index">My menus</a>
                 <a class="sidebar-link" asp-controller="Caretaker" asp-action="Create">Create menu</a>
+                <a class="sidebar-link" asp-controller="Profile" asp-action="Location">Service location</a>
             }
             @if (User.IsInRole(AppRoles.User))
             {
                 <a class="sidebar-link" asp-controller="User" asp-action="Home">Available menus</a>
+                <a class="sidebar-link" asp-controller="Profile" asp-action="Location">Delivery location</a>
             }
             @if (User.Identity?.IsAuthenticated != true)
             {

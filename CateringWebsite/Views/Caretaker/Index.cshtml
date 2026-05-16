@@ -18,6 +18,14 @@
     <div class="status-message">@statusMessage</div>
 }
 
+@if (ViewData["LocationMissing"] as bool? == true)
+{
+    <div class="status-message">
+        Set your service location so Google Maps can include your menus in nearby user results.
+        <a asp-controller="Profile" asp-action="Location">Set location</a>
+    </div>
+}
+
 <section class="table-surface">
     <table class="table align-middle">
         <thead>

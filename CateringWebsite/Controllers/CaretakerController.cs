@@ -31,12 +31,14 @@ public class CaretakerController : Controller
     public async Task<IActionResult> Index()
     {
         var caretakerId = _userManager.GetUserId(User);
+        var caretaker = await _userManager.GetUserAsync(User);
         var menuItems = await _dbContext.MenuItems
             .Include(item => item.CustomizationOptions)
             .Where(item => item.CaretakerId == caretakerId)
             .OrderByDescending(item => item.CreatedAt)
             .ToListAsync();
 
+        ViewData["LocationMissing"] = string.IsNullOrWhiteSpace(caretaker?.LocationAddress);
         return View(menuItems);
     }
 

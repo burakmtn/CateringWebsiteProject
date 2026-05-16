@@ -1,14 +1,14 @@
-@model MenuItem
+@model MenuDetailsViewModel
 
 @{
-    ViewData["Title"] = Model.Name;
+    ViewData["Title"] = Model.MenuItem.Name;
 }
 
 <section class="menu-detail">
     <div class="menu-detail-media">
-        @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+        @if (!string.IsNullOrWhiteSpace(Model.MenuItem.ImagePath))
         {
-            <img src="@Model.ImagePath" alt="@Model.Name" />
+            <img src="@Model.MenuItem.ImagePath" alt="@Model.MenuItem.Name" />
         }
         else
         {
@@ -16,11 +16,11 @@
         }
     </div>
     <div class="menu-detail-copy">
-        <p class="eyebrow">@Model.Caretaker?.DisplayName</p>
-        <h1>@Model.Name</h1>
-        <p class="lead-text">@Model.Description</p>
-        <strong class="detail-price">@Model.Price.ToString("C")</strong>
-        <a class="btn btn-light" asp-action="Home">Back to menus</a>
+        <p class="eyebrow">@Model.MenuItem.Caretaker?.DisplayName · @Model.DistanceText</p>
+        <h1>@Model.MenuItem.Name</h1>
+        <p class="lead-text">@Model.MenuItem.Description</p>
+        <strong class="detail-price">@Model.MenuItem.Price.ToString("C")</strong>
+        <a class="btn btn-light" asp-action="Home">Back to nearby menus</a>
     </div>
 </section>
 
@@ -30,14 +30,14 @@
         <h2>Available options</h2>
     </div>
 
-    @if (Model.CustomizationOptions.Count == 0)
+    @if (Model.MenuItem.CustomizationOptions.Count == 0)
     {
         <div class="empty-state menu-empty">No customization options defined for this menu.</div>
     }
     else
     {
         <div class="option-grid">
-        @foreach (var group in Model.CustomizationOptions.GroupBy(option => option.GroupName).OrderBy(group => group.Key))
+        @foreach (var group in Model.MenuItem.CustomizationOptions.GroupBy(option => option.GroupName).OrderBy(group => group.Key))
         {
             <article class="feature-card">
                 <span class="feature-kicker">@group.Key</span>
