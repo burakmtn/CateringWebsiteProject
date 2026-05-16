@@ -4,37 +4,59 @@
 
 <section class="brand-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Catering management workspace</p>
+        <p class="eyebrow">Catering order workspace</p>
         <h1>SofraLink</h1>
-        <p class="lead-text">A role-based catering platform foundation for users, caretakers, menus, orders, and admin workflows.</p>
+        <p class="lead-text">A branded catering platform for nearby menus, custom orders, simulated payment, generated documents, and admin monitoring.</p>
+        <div class="hero-actions">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                @if (User.IsInRole(AppRoles.Admin))
+                {
+                    <a class="btn brand-action" asp-controller="Admin" asp-action="Index">Open dashboard</a>
+                }
+                else if (User.IsInRole(AppRoles.Caretaker))
+                {
+                    <a class="btn brand-action" asp-controller="Caretaker" asp-action="Index">Manage menus</a>
+                }
+                else
+                {
+                    <a class="btn brand-action" asp-controller="User" asp-action="Home">Browse menus</a>
+                }
+            }
+            else
+            {
+                <a class="btn brand-action" asp-controller="Account" asp-action="Login">Login</a>
+                <a class="btn btn-light" asp-controller="Account" asp-action="Register">Register</a>
+            }
+        </div>
     </div>
     <div class="hero-panel" aria-label="Project status">
         <span class="status-dot"></span>
-        <strong>Core foundation</strong>
-        <span>ASP.NET Core MVC, Identity, EF Core, LocalDB</span>
+        <strong>Live project flow</strong>
+        <span>Menus, cart, orders, PDFs, email hooks, logs, and filtered tables.</span>
     </div>
 </section>
 
 <section class="section-band" id="starter-sections">
     <div class="section-heading">
-        <p class="eyebrow">Step 1 foundation</p>
-        <h2>Starter structure</h2>
+        <p class="eyebrow">Platform identity</p>
+        <h2>Built for three roles</h2>
     </div>
     <div class="feature-grid">
         <article class="feature-card">
-            <span class="feature-kicker">Identity</span>
-            <h3>Users and roles</h3>
-            <p>Admin, Caretaker, and User roles are ready for the next feature step.</p>
+            <span class="feature-kicker">Users</span>
+            <h3>Order nearby menus</h3>
+            <p>Browse available meals, customize selections, pay through simulation, and review completed orders.</p>
         </article>
         <article class="feature-card">
-            <span class="feature-kicker">Database</span>
-            <h3>Code First schema</h3>
-            <p>LocalDB migrations include Identity tables and the first menu item table.</p>
+            <span class="feature-kicker">Caretakers</span>
+            <h3>Manage catering offers</h3>
+            <p>Create menu items with images, pricing, ingredients, additions, and option groups.</p>
         </article>
         <article class="feature-card">
-            <span class="feature-kicker">Interface</span>
-            <h3>Branded layout</h3>
-            <p>Navbar, sidebar, footer, and starter styling establish the project identity.</p>
+            <span class="feature-kicker">Admin</span>
+            <h3>Inspect the system</h3>
+            <p>Review users, caterers, orders, ratings, and activity logs through structured tables.</p>
         </article>
     </div>
 </section>
