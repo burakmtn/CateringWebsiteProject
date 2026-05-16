@@ -13,15 +13,18 @@ public class SmtpOrderEmailService : IOrderEmailService
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<SmtpOrderEmailService> _logger;
     private readonly SmtpEmailOptions _options;
+    private readonly ISystemLogService _systemLogService;
 
     public SmtpOrderEmailService(
         ApplicationDbContext dbContext,
         IOptions<SmtpEmailOptions> options,
-        ILogger<SmtpOrderEmailService> logger)
+        ILogger<SmtpOrderEmailService> logger,
+        ISystemLogService systemLogService)
     {
         _dbContext = dbContext;
         _options = options.Value;
         _logger = logger;
+        _systemLogService = systemLogService;
     }
 
     public async Task SendOrderEmailsAsync(int orderId)
@@ -29,6 +32,11 @@ public class SmtpOrderEmailService : IOrderEmailService
         if (!IsConfigured())
         {
             _logger.LogInformation("Order email skipped because SMTP settings are not configured.");
+            await _systemLogService.LogAsync(
+                "EmailSkipped",
+                $"Order email skipped for order #{orderId} because SMTP settings are not configured.",
+                relatedEntityType: nameof(Order),
+                relatedEntityId: orderId.ToString());
             return;
         }
 
@@ -44,6 +52,12 @@ public class SmtpOrderEmailService : IOrderEmailService
         if (order is null)
         {
             _logger.LogWarning("Order email skipped because order {OrderId} was not found.", orderId);
+            await _systemLogService.LogAsync(
+                "EmailSkipped",
+                $"Order email skipped because order #{orderId} was not found.",
+                "Warning",
+                relatedEntityType: nameof(Order),
+                relatedEntityId: orderId.ToString());
             return;
         }
 
@@ -143,10 +157,12 @@ public class SmtpOrderEmailService : IOrderEmailService
             }
 
             await client.SendMailAsync(message);
+            await _systemLogService.LogAsync("EmailSent", $"Order email sent to {toEmail}.");
         }
         catch (Exception exception)
         {
             _logger.LogWarning(exception, "Failed to send order email to {Email}.", toEmail);
+            await _systemLogService.LogAsync("EmailFailed", $"Order email failed for {toEmail}.", "Warning");
         }
     }
 

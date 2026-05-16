@@ -1,0 +1,59 @@
+@model SystemLogListViewModel
+
+@{
+    ViewData["Title"] = "System Logs";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Admin</p>
+        <h1>System logs</h1>
+        <p class="lead-text">Important authentication, order, payment, rating, email, admin, and error events are stored here.</p>
+    </div>
+</section>
+
+@if (Model.Logs.Count == 0)
+{
+    <div class="empty-state menu-empty">No logs have been recorded yet.</div>
+}
+else
+{
+    <section class="table-surface">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Severity</th>
+                    <th>User</th>
+                    <th>Related</th>
+                    <th>IP</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                <tr>
+                    <td>@log.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>@log.EventType</td>
+                    <td><span class="status-chip">@log.Severity</span></td>
+                    <td>@(log.UserEmail ?? "-")</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(log.RelatedEntityType))
+                        {
+                            <span>@log.RelatedEntityType #@log.RelatedEntityId</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>@(log.IpAddress ?? "-")</td>
+                    <td>@log.Message</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}

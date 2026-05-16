@@ -18,17 +18,20 @@ public class CartController : Controller
     private readonly ApplicationDbContext _dbContext;
     private readonly IOrderDocumentService _orderDocumentService;
     private readonly IOrderEmailService _orderEmailService;
+    private readonly ISystemLogService _systemLogService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public CartController(
         ApplicationDbContext dbContext,
         IOrderDocumentService orderDocumentService,
         IOrderEmailService orderEmailService,
+        ISystemLogService systemLogService,
         UserManager<ApplicationUser> userManager)
     {
         _dbContext = dbContext;
         _orderDocumentService = orderDocumentService;
         _orderEmailService = orderEmailService;
+        _systemLogService = systemLogService;
         _userManager = userManager;
     }
 
@@ -147,6 +150,20 @@ public class CartController : Controller
         }
 
         var order = await CreateOrderAsync(user, GetCart(), cartViewModel.TotalAmount);
+        await _systemLogService.LogAsync(
+            "OrderCreated",
+            $"Order #{order.Id} was created after simulated payment.",
+            user: user,
+            relatedEntityType: nameof(Order),
+            relatedEntityId: order.Id.ToString(),
+            ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
+        await _systemLogService.LogAsync(
+            "PaymentAction",
+            $"Payment was simulated successfully for order #{order.Id}.",
+            user: user,
+            relatedEntityType: nameof(Order),
+            relatedEntityId: order.Id.ToString(),
+            ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
         await _orderDocumentService.GenerateOrderDocumentsAsync(order.Id);
         await _orderEmailService.SendOrderEmailsAsync(order.Id);
         ClearCart();

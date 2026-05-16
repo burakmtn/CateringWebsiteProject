@@ -26,6 +26,7 @@ builder.Services.Configure<SmtpEmailOptions>(builder.Configuration.GetSection("E
 builder.Services.AddHttpClient<IGoogleDistanceService, GoogleDistanceService>();
 builder.Services.AddScoped<IOrderDocumentService, OrderDocumentService>();
 builder.Services.AddScoped<IOrderEmailService, SmtpOrderEmailService>();
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -49,6 +50,28 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseSession();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception exception)
+    {
+        var systemLogService = context.RequestServices.GetRequiredService<ISystemLogService>();
+        await systemLogService.LogAsync(
+            "Error",
+            exception.Message,
+            "Error",
+            userEmail: context.User.Identity?.Name,
+            relatedEntityType: "Request",
+            relatedEntityId: context.Request.Path,
+            ipAddress: context.Connection.RemoteIpAddress?.ToString());
+
+        throw;
+    }
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -14,15 +14,18 @@ public class OrdersController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly IOrderDocumentService _orderDocumentService;
+    private readonly ISystemLogService _systemLogService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public OrdersController(
         ApplicationDbContext dbContext,
         IOrderDocumentService orderDocumentService,
+        ISystemLogService systemLogService,
         UserManager<ApplicationUser> userManager)
     {
         _dbContext = dbContext;
         _orderDocumentService = orderDocumentService;
+        _systemLogService = systemLogService;
         _userManager = userManager;
     }
 
@@ -152,6 +155,13 @@ public class OrdersController : Controller
 
         _dbContext.OrderItemReviews.Add(review);
         await _dbContext.SaveChangesAsync();
+        await _systemLogService.LogAsync(
+            "RatingSubmitted",
+            $"Rating submitted for order item #{orderItem.Id}.",
+            user: orderItem.Order?.User,
+            relatedEntityType: nameof(OrderItem),
+            relatedEntityId: orderItem.Id.ToString(),
+            ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
 
         TempData["StatusMessage"] = "Review submitted.";
         return RedirectToAction(nameof(Index));
@@ -162,6 +172,7 @@ public class OrdersController : Controller
         var userId = _userManager.GetUserId(User);
         return await _dbContext.OrderItems
             .Include(item => item.Order)
+                .ThenInclude(order => order!.User)
             .Include(item => item.Caretaker)
             .Include(item => item.Review)
             .FirstOrDefaultAsync(item =>

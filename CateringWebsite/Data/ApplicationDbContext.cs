@@ -24,6 +24,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     public DbSet<OrderItemReview> OrderItemReviews => Set<OrderItemReview>();
 
+    public DbSet<SystemLog> SystemLogs => Set<SystemLog>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -117,6 +119,23 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                 .WithMany()
                 .HasForeignKey(review => review.CaretakerId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<SystemLog>(entity =>
+        {
+            entity.Property(log => log.EventType).HasMaxLength(80);
+            entity.Property(log => log.Severity).HasMaxLength(40);
+            entity.Property(log => log.Message).HasMaxLength(500);
+            entity.Property(log => log.UserEmail).HasMaxLength(256);
+            entity.Property(log => log.RelatedEntityType).HasMaxLength(80);
+            entity.Property(log => log.RelatedEntityId).HasMaxLength(80);
+            entity.Property(log => log.IpAddress).HasMaxLength(80);
+            entity.Property(log => log.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.HasIndex(log => log.CreatedAt);
+            entity.HasOne(log => log.User)
+                .WithMany()
+                .HasForeignKey(log => log.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
