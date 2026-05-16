@@ -16,6 +16,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     public DbSet<MenuCustomizationOption> MenuCustomizationOptions => Set<MenuCustomizationOption>();
 
+    public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+    public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -48,6 +54,44 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                 .WithMany(item => item.CustomizationOptions)
                 .HasForeignKey(option => option.MenuItemId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Order>(entity =>
+        {
+            entity.Property(order => order.DeliveryAddress).HasMaxLength(260);
+            entity.Property(order => order.Status).HasMaxLength(40);
+            entity.Property(order => order.TotalAmount).HasColumnType("decimal(18,2)");
+            entity.Property(order => order.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.HasOne(order => order.User)
+                .WithMany()
+                .HasForeignKey(order => order.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<OrderItem>(entity =>
+        {
+            entity.Property(item => item.MenuName).HasMaxLength(120);
+            entity.Property(item => item.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(item => item.Subtotal).HasColumnType("decimal(18,2)");
+            entity.HasOne(item => item.MenuItem)
+                .WithMany()
+                .HasForeignKey(item => item.MenuItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(item => item.Caretaker)
+                .WithMany()
+                .HasForeignKey(item => item.CaretakerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<OrderItemOption>(entity =>
+        {
+            entity.Property(option => option.GroupName).HasMaxLength(80);
+            entity.Property(option => option.Name).HasMaxLength(120);
+            entity.Property(option => option.PriceChange).HasColumnType("decimal(18,2)");
+            entity.HasOne(option => option.MenuCustomizationOption)
+                .WithMany()
+                .HasForeignKey(option => option.MenuCustomizationOptionId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

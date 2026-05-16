@@ -1,0 +1,26 @@
+@model OrderConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Order confirmed</p>
+        <h1>Payment simulated successfully</h1>
+        <p class="lead-text">Your order has been created and marked as @Model.Status.</p>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <article class="feature-card">
+        <span class="feature-kicker">Order ID</span>
+        <h3>#@Model.OrderId</h3>
+        <p>Use this identifier for later receipt, agreement, and rating workflows.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Total</span>
+        <h3>@Model.TotalAmount.ToString("C")</h3>
+        <p>The total includes selected customization options and quantities.</p>
+    </article>
+</section>

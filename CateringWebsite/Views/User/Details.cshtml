@@ -20,6 +20,14 @@
         <h1>@Model.MenuItem.Name</h1>
         <p class="lead-text">@Model.MenuItem.Description</p>
         <strong class="detail-price">@Model.MenuItem.Price.ToString("C")</strong>
+        <form id="add-to-cart-form" asp-controller="Cart" asp-action="Add" method="post" class="cart-add-form">
+            <input type="hidden" name="MenuItemId" value="@Model.MenuItem.Id" />
+            <div class="form-field quantity-field">
+                <label for="Quantity">Quantity</label>
+                <input class="form-control" id="Quantity" name="Quantity" type="number" value="1" min="1" max="99" />
+            </div>
+            <button type="submit" class="btn brand-action">Add to cart</button>
+        </form>
         <a class="btn btn-light" asp-action="Home">Back to nearby menus</a>
     </div>
 </section>
@@ -45,7 +53,10 @@
                 @foreach (var option in group.OrderBy(option => option.Name))
                 {
                     <li>
-                        <span>@option.Name</span>
+                        <label class="option-check">
+                            <input type="checkbox" name="SelectedOptionIds" value="@option.Id" form="add-to-cart-form" />
+                            <span>@option.Name</span>
+                        </label>
                         @if (option.PriceChange != 0)
                         {
                             <strong>@option.PriceChange.ToString("+0.##;-0.##")</strong>
