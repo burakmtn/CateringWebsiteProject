@@ -27,7 +27,27 @@ public class AdminController : Controller
             "Admin dashboard viewed.",
             userEmail: User.Identity?.Name,
             ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString());
-        return View();
+
+        var caretakerRoleId = await _dbContext.Roles
+            .Where(role => role.Name == AppRoles.Caretaker)
+            .Select(role => role.Id)
+            .FirstOrDefaultAsync();
+
+        var userRoleId = await _dbContext.Roles
+            .Where(role => role.Name == AppRoles.User)
+            .Select(role => role.Id)
+            .FirstOrDefaultAsync();
+
+        return View(new AdminDashboardViewModel
+        {
+            UserCount = await _dbContext.UserRoles.CountAsync(role => role.RoleId == userRoleId),
+            CaretakerCount = await _dbContext.UserRoles.CountAsync(role => role.RoleId == caretakerRoleId),
+            MenuItemCount = await _dbContext.MenuItems.CountAsync(),
+            OrderCount = await _dbContext.Orders.CountAsync(),
+            ReviewCount = await _dbContext.OrderItemReviews.CountAsync(),
+            LogCount = await _dbContext.SystemLogs.CountAsync(),
+            TotalOrderAmount = await _dbContext.Orders.SumAsync(order => (decimal?)order.TotalAmount) ?? 0m
+        });
     }
 
     public async Task<IActionResult> Logs(string search = "", int page = 1)

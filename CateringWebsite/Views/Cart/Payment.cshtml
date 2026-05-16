@@ -48,7 +48,13 @@
         @foreach (var item in Model.Cart.Items)
         {
             <li>
-                <span>@item.Quantity x @item.MenuName</span>
+                <span>
+                    @item.Quantity x @item.MenuName
+                    @if (item.SelectedOptions.Count > 0)
+                    {
+                        <small>@string.Join(", ", item.SelectedOptions)</small>
+                    }
+                </span>
                 <strong>@item.Subtotal.ToString("C")</strong>
             </li>
         }

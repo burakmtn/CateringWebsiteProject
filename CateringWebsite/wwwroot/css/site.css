@@ -747,6 +747,13 @@ a {
   border-bottom: 1px solid var(--line);
 }
 
+.summary-list small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .compact-total {
   margin-top: 1rem;
   padding: 0;

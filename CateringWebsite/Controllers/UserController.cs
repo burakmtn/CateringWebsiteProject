@@ -47,7 +47,8 @@ public class UserController : Controller
         {
             UserLocationAddress = user.LocationAddress,
             NearbyDistanceKm = _googleMapsOptions.NearbyDistanceKm,
-            GoogleMapsConfigured = !string.IsNullOrWhiteSpace(_googleMapsOptions.ApiKey)
+            GoogleMapsConfigured = !string.IsNullOrWhiteSpace(_googleMapsOptions.ApiKey),
+            Stats = await BuildDashboardStatsAsync(user.Id)
         };
 
         if (string.IsNullOrWhiteSpace(user.LocationAddress))
@@ -104,6 +105,7 @@ public class UserController : Controller
         }
 
         viewModel.Menus = nearbyMenus;
+        viewModel.Stats.NearbyMenuCount = nearbyMenus.Count;
         return View(viewModel);
     }
 
@@ -208,5 +210,17 @@ public class UserController : Controller
         return ratings.Count == 0
             ? new RatingSummary()
             : new RatingSummary { Average = ratings.Average(), Count = ratings.Count };
+    }
+
+    private async Task<UserDashboardStatsViewModel> BuildDashboardStatsAsync(string userId)
+    {
+        return new UserDashboardStatsViewModel
+        {
+            OrderCount = await _dbContext.Orders.CountAsync(order => order.UserId == userId),
+            ReviewCount = await _dbContext.OrderItemReviews.CountAsync(review => review.UserId == userId),
+            TotalSpent = await _dbContext.Orders
+                .Where(order => order.UserId == userId)
+                .SumAsync(order => (decimal?)order.TotalAmount) ?? 0m
+        };
     }
 }

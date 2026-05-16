@@ -10,5 +10,7 @@ public class NearbyMenusViewModel
 
     public string? StatusMessage { get; set; }
 
+    public UserDashboardStatsViewModel Stats { get; set; } = new();
+
     public IReadOnlyList<NearbyMenuItemViewModel> Menus { get; set; } = [];
 }

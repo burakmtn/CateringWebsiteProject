@@ -1,3 +1,5 @@
+@model AdminDashboardViewModel
+
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
@@ -5,30 +7,30 @@
 <section class="dashboard-header">
     <p class="eyebrow">Admin</p>
     <h1>System dashboard</h1>
-    <p class="lead-text">Basic admin access is active. Logs, users, orders, and platform controls can grow from this page in later labs.</p>
+    <p class="lead-text">Monitor platform activity, role totals, orders, ratings, and logs from one role-protected dashboard.</p>
 </section>
 
 <section class="feature-grid">
     <article class="feature-card">
-        <span class="feature-kicker">Access</span>
-        <h3>Admin role enforced</h3>
-        <p>Only accounts assigned to Admin can view this dashboard.</p>
+        <span class="feature-kicker">Accounts</span>
+        <h3>@Model.UserCount users</h3>
+        <p>@Model.CaretakerCount caretaker accounts are registered for catering operations.</p>
     </article>
     <article class="feature-card">
-        <span class="feature-kicker">Next labs</span>
-        <h3>Monitoring active</h3>
-        <p>System activity is stored in the database and can be inspected from the log page.</p>
+        <span class="feature-kicker">Orders</span>
+        <h3>@Model.OrderCount orders</h3>
+        <p>Total simulated order amount: @Model.TotalOrderAmount.ToString("C").</p>
     </article>
     <article class="feature-card">
         <span class="feature-kicker">Logs</span>
-        <h3>System activity</h3>
-        <p>Inspect authentication, order, payment, rating, email, admin, and error events.</p>
+        <h3>@Model.LogCount events</h3>
+        <p>Authentication, order, payment, rating, email, admin, and error events are stored.</p>
         <a class="btn brand-action" asp-action="Logs">View logs</a>
     </article>
     <article class="feature-card">
         <span class="feature-kicker">Tables</span>
-        <h3>Platform data</h3>
-        <p>Review users, caterers, orders, and ratings through filtered paginated tables.</p>
+        <h3>@Model.MenuItemCount menus</h3>
+        <p>@Model.ReviewCount completed-order rating comments are available for inspection.</p>
         <div class="table-actions">
             <a class="btn btn-sm brand-action" asp-action="Users">Users</a>
             <a class="btn btn-sm brand-action" asp-action="Caterers">Caterers</a>

@@ -1,4 +1,4 @@
-@model PagedListViewModel<MenuItem>
+@model CaretakerDashboardViewModel
 
 @{
     ViewData["Title"] = "Caretaker Menus";
@@ -13,8 +13,31 @@
     <a class="btn brand-action" asp-action="Create">Create menu item</a>
 </section>
 
+<section class="feature-grid section-band">
+    <article class="feature-card">
+        <span class="feature-kicker">Menus</span>
+        <h3>@Model.MenuItemCount active items</h3>
+        <p>Menu records owned by this caretaker account.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Orders</span>
+        <h3>@Model.ReceivedOrderCount received</h3>
+        <p>@Model.CompletedOrderCount completed orders include your menu items.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Revenue</span>
+        <h3>@Model.TotalRevenue.ToString("C")</h3>
+        <p>Total simulated subtotal from ordered items.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Ratings</span>
+        <h3>@(Model.AverageCaretakerRating is null ? "No ratings" : $"{Model.AverageCaretakerRating:0.0}")</h3>
+        <p>@Model.ReviewCount completed-order reviews mention this caretaker.</p>
+    </article>
+</section>
+
 <form class="table-filter" method="get">
-    <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Filter menu items" />
+    <input class="form-control" type="search" name="search" value="@Model.MenuItems.Search" placeholder="Filter menu items" />
     <button class="btn brand-action" type="submit">Filter</button>
     <a class="btn btn-light" asp-action="Index">Clear</a>
 </form>
@@ -24,7 +47,7 @@
     <div class="status-message">@statusMessage</div>
 }
 
-@if (ViewData["LocationMissing"] as bool? == true)
+@if (Model.LocationMissing)
 {
     <div class="status-message">
         Set your service location so Google Maps can include your menus in nearby user results.
@@ -45,7 +68,7 @@
             </tr>
         </thead>
         <tbody>
-        @if (Model.Items.Count == 0)
+        @if (Model.MenuItems.Items.Count == 0)
         {
             <tr>
                 <td colspan="6" class="empty-state">No menu items yet.</td>
@@ -53,7 +76,7 @@
         }
         else
         {
-            @foreach (var item in Model.Items)
+            @foreach (var item in Model.MenuItems.Items)
             {
                 <tr>
                     <td>
@@ -89,15 +112,15 @@
 </section>
 
 <nav class="pagination-row" aria-label="Menu table pages">
-    <span>Page @Model.PageNumber of @Model.TotalPages (@Model.TotalItems total)</span>
+    <span>Page @Model.MenuItems.PageNumber of @Model.MenuItems.TotalPages (@Model.MenuItems.TotalItems total)</span>
     <div>
-        @if (Model.HasPreviousPage)
+        @if (Model.MenuItems.HasPreviousPage)
         {
-            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber - 1)">Previous</a>
         }
-        @if (Model.HasNextPage)
+        @if (Model.MenuItems.HasNextPage)
         {
-            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber + 1)">Next</a>
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber + 1)">Next</a>
         }
     </div>
 </nav>

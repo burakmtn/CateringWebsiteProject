@@ -44,9 +44,27 @@ public class CaretakerController : Controller
         }
 
         var menuItems = await ToPagedListAsync(query.OrderByDescending(item => item.CreatedAt), search, page);
+        var orderItems = _dbContext.OrderItems
+            .Include(item => item.Order)
+            .Where(item => item.CaretakerId == caretakerId);
+        var caretakerReviews = _dbContext.OrderItemReviews
+            .Where(review => review.CaretakerId == caretakerId);
 
-        ViewData["LocationMissing"] = string.IsNullOrWhiteSpace(caretaker?.LocationAddress);
-        return View(menuItems);
+        return View(new CaretakerDashboardViewModel
+        {
+            MenuItems = menuItems,
+            MenuItemCount = await _dbContext.MenuItems.CountAsync(item => item.CaretakerId == caretakerId),
+            ReceivedOrderCount = await orderItems.Select(item => item.OrderId).Distinct().CountAsync(),
+            CompletedOrderCount = await orderItems
+                .Where(item => item.Order != null && item.Order.Status == "Completed")
+                .Select(item => item.OrderId)
+                .Distinct()
+                .CountAsync(),
+            TotalRevenue = await orderItems.SumAsync(item => (decimal?)item.Subtotal) ?? 0m,
+            AverageCaretakerRating = await caretakerReviews.AverageAsync(review => (double?)review.CaretakerRating),
+            ReviewCount = await caretakerReviews.CountAsync(),
+            LocationMissing = string.IsNullOrWhiteSpace(caretaker?.LocationAddress)
+        });
     }
 
     [HttpGet]

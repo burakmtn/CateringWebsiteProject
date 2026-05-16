@@ -13,6 +13,29 @@
     <a class="btn brand-action" asp-controller="Profile" asp-action="Location">Set delivery location</a>
 </section>
 
+<section class="feature-grid section-band">
+    <article class="feature-card">
+        <span class="feature-kicker">Nearby</span>
+        <h3>@Model.Stats.NearbyMenuCount menus</h3>
+        <p>Menus currently visible within the configured Google Maps distance.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Orders</span>
+        <h3>@Model.Stats.OrderCount purchases</h3>
+        <p>Your completed SofraLink order history.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Spending</span>
+        <h3>@Model.Stats.TotalSpent.ToString("C")</h3>
+        <p>Total simulated payment amount across your orders.</p>
+    </article>
+    <article class="feature-card">
+        <span class="feature-kicker">Reviews</span>
+        <h3>@Model.Stats.ReviewCount ratings</h3>
+        <p>Comments tied to completed order items.</p>
+    </article>
+</section>
+
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
 {
     <div class="status-message">@Model.StatusMessage</div>
