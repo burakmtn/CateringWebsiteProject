@@ -22,12 +22,23 @@ else
     @foreach (var item in Model)
     {
         <article class="menu-card">
+            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+            {
+                <img class="menu-card-image" src="@item.ImagePath" alt="@item.Name" />
+            }
+            else
+            {
+                <div class="image-placeholder">SofraLink</div>
+            }
             <div>
                 <span class="feature-kicker">@item.Caretaker?.DisplayName</span>
                 <h2>@item.Name</h2>
                 <p>@item.Description</p>
             </div>
-            <strong>@item.Price.ToString("C")</strong>
+            <div class="menu-card-footer">
+                <strong>@item.Price.ToString("C")</strong>
+                <a class="btn btn-sm btn-light" asp-action="Details" asp-route-id="@item.Id">Details</a>
+            </div>
         </article>
     }
 }

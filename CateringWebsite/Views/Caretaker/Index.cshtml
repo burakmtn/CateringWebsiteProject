@@ -7,8 +7,8 @@
 <section class="dashboard-header">
     <div>
         <p class="eyebrow">Caretaker</p>
-        <h1>Menu creation</h1>
-        <p class="lead-text">Create simple menu items that users can see on their home page.</p>
+        <h1>Menu management</h1>
+        <p class="lead-text">Create, edit, and manage menu items with images and customization options.</p>
     </div>
     <a class="btn brand-action" asp-action="Create">Create menu item</a>
 </section>
@@ -22,17 +22,19 @@
     <table class="table align-middle">
         <thead>
             <tr>
+                <th>Image</th>
                 <th>Name</th>
                 <th>Price</th>
-                <th>Description</th>
+                <th>Options</th>
                 <th>Created</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         @if (Model.Count == 0)
         {
             <tr>
-                <td colspan="4" class="empty-state">No menu items yet.</td>
+                <td colspan="6" class="empty-state">No menu items yet.</td>
             </tr>
         }
         else
@@ -40,10 +42,31 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Name</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                        {
+                            <img class="table-thumb" src="@item.ImagePath" alt="@item.Name" />
+                        }
+                        else
+                        {
+                            <span class="image-placeholder small-placeholder">SL</span>
+                        }
+                    </td>
+                    <td>
+                        <strong>@item.Name</strong>
+                        <span class="table-description">@item.Description</span>
+                    </td>
                     <td>@item.Price.ToString("C")</td>
-                    <td>@item.Description</td>
+                    <td>@item.CustomizationOptions.Count</td>
                     <td>@item.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>
+                        <div class="table-actions">
+                            <a class="btn btn-sm btn-light" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             }
         }

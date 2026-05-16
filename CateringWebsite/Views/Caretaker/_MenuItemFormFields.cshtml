@@ -1,0 +1,49 @@
+@model MenuItemFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="form-field">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="form-field">
+    <label asp-for="Price"></label>
+    <input asp-for="Price" class="form-control" type="number" min="0.01" step="0.01" />
+    <span asp-validation-for="Price" class="text-danger"></span>
+</div>
+
+<div class="form-field">
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div class="form-field">
+    <label asp-for="ImageFile"></label>
+    @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+    {
+        <img class="form-image-preview" src="@Model.ExistingImagePath" alt="@Model.Name" />
+    }
+    <input asp-for="ImageFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+    <span asp-validation-for="ImageFile" class="text-danger"></span>
+</div>
+
+<div class="form-field">
+    <label asp-for="RemovableIngredientsText"></label>
+    <textarea asp-for="RemovableIngredientsText" class="form-control" rows="3" placeholder="Onion&#10;Tomato&#10;Pickles"></textarea>
+    <span class="field-hint">One ingredient per line.</span>
+</div>
+
+<div class="form-field">
+    <label asp-for="OptionalAdditionsText"></label>
+    <textarea asp-for="OptionalAdditionsText" class="form-control" rows="3" placeholder="Extra cheese | 20&#10;Extra meat | 45"></textarea>
+    <span class="field-hint">Use “Name | PriceChange” for paid extras.</span>
+</div>
+
+<div class="form-field">
+    <label asp-for="OptionGroupsText"></label>
+    <textarea asp-for="OptionGroupsText" class="form-control" rows="3" placeholder="Sauces: Garlic sauce | 0&#10;Sides: Fries | 35"></textarea>
+    <span class="field-hint">Use “Group: Option | PriceChange”.</span>
+</div>

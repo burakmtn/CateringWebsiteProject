@@ -1,0 +1,60 @@
+@model MenuItem
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="menu-detail">
+    <div class="menu-detail-media">
+        @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath" alt="@Model.Name" />
+        }
+        else
+        {
+            <div class="image-placeholder detail-placeholder">SofraLink</div>
+        }
+    </div>
+    <div class="menu-detail-copy">
+        <p class="eyebrow">@Model.Caretaker?.DisplayName</p>
+        <h1>@Model.Name</h1>
+        <p class="lead-text">@Model.Description</p>
+        <strong class="detail-price">@Model.Price.ToString("C")</strong>
+        <a class="btn btn-light" asp-action="Home">Back to menus</a>
+    </div>
+</section>
+
+<section class="section-band">
+    <div class="section-heading">
+        <p class="eyebrow">Customization</p>
+        <h2>Available options</h2>
+    </div>
+
+    @if (Model.CustomizationOptions.Count == 0)
+    {
+        <div class="empty-state menu-empty">No customization options defined for this menu.</div>
+    }
+    else
+    {
+        <div class="option-grid">
+        @foreach (var group in Model.CustomizationOptions.GroupBy(option => option.GroupName).OrderBy(group => group.Key))
+        {
+            <article class="feature-card">
+                <span class="feature-kicker">@group.Key</span>
+                <ul class="option-list">
+                @foreach (var option in group.OrderBy(option => option.Name))
+                {
+                    <li>
+                        <span>@option.Name</span>
+                        @if (option.PriceChange != 0)
+                        {
+                            <strong>@option.PriceChange.ToString("+0.##;-0.##")</strong>
+                        }
+                    </li>
+                }
+                </ul>
+            </article>
+        }
+        </div>
+    }
+</section>

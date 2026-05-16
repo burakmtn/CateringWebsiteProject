@@ -24,9 +24,25 @@ public class UserController : Controller
     {
         var menuItems = await _dbContext.MenuItems
             .Include(item => item.Caretaker)
+            .Include(item => item.CustomizationOptions)
             .OrderByDescending(item => item.CreatedAt)
             .ToListAsync();
 
         return View(menuItems);
+    }
+
+    public async Task<IActionResult> Details(int id)
+    {
+        var menuItem = await _dbContext.MenuItems
+            .Include(item => item.Caretaker)
+            .Include(item => item.CustomizationOptions)
+            .FirstOrDefaultAsync(item => item.Id == id);
+
+        if (menuItem is null)
+        {
+            return NotFound();
+        }
+
+        return View(menuItem);
     }
 }
