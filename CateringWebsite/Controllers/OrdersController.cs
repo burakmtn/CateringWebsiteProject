@@ -1,6 +1,7 @@
 using CateringWebsite.Data;
 using CateringWebsite.Models;
 using CateringWebsite.Models.ViewModels;
+using CateringWebsite.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,16 @@ namespace CateringWebsite.Controllers;
 public class OrdersController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IOrderDocumentService _orderDocumentService;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public OrdersController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+    public OrdersController(
+        ApplicationDbContext dbContext,
+        IOrderDocumentService orderDocumentService,
+        UserManager<ApplicationUser> userManager)
     {
         _dbContext = dbContext;
+        _orderDocumentService = orderDocumentService;
         _userManager = userManager;
     }
 
@@ -49,6 +55,32 @@ public class OrdersController : Controller
         };
 
         return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Document(int orderId, string kind)
+    {
+        var userId = _userManager.GetUserId(User);
+        var ownsOrder = await _dbContext.Orders
+            .AnyAsync(order => order.Id == orderId && order.UserId == userId);
+
+        if (!ownsOrder)
+        {
+            return NotFound();
+        }
+
+        if (!Enum.TryParse<OrderDocumentKind>(kind, true, out var documentKind))
+        {
+            return NotFound();
+        }
+
+        var document = await _orderDocumentService.GetOrderDocumentAsync(orderId, documentKind);
+        if (document is null)
+        {
+            return NotFound();
+        }
+
+        return PhysicalFile(document.Path, "application/pdf", document.FileName);
     }
 
     [HttpGet]

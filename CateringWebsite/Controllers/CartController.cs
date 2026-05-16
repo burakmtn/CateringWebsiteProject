@@ -16,15 +16,18 @@ public class CartController : Controller
     private const string CartSessionKey = "SofraLink.Cart";
 
     private readonly ApplicationDbContext _dbContext;
+    private readonly IOrderDocumentService _orderDocumentService;
     private readonly IOrderEmailService _orderEmailService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public CartController(
         ApplicationDbContext dbContext,
+        IOrderDocumentService orderDocumentService,
         IOrderEmailService orderEmailService,
         UserManager<ApplicationUser> userManager)
     {
         _dbContext = dbContext;
+        _orderDocumentService = orderDocumentService;
         _orderEmailService = orderEmailService;
         _userManager = userManager;
     }
@@ -144,6 +147,7 @@ public class CartController : Controller
         }
 
         var order = await CreateOrderAsync(user, GetCart(), cartViewModel.TotalAmount);
+        await _orderDocumentService.GenerateOrderDocumentsAsync(order.Id);
         await _orderEmailService.SendOrderEmailsAsync(order.Id);
         ClearCart();
 

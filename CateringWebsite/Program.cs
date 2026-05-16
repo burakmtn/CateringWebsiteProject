@@ -24,6 +24,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection("GoogleMaps"));
 builder.Services.Configure<SmtpEmailOptions>(builder.Configuration.GetSection("Email:Smtp"));
 builder.Services.AddHttpClient<IGoogleDistanceService, GoogleDistanceService>();
+builder.Services.AddScoped<IOrderDocumentService, OrderDocumentService>();
 builder.Services.AddScoped<IOrderEmailService, SmtpOrderEmailService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

@@ -12,6 +12,11 @@
     </div>
 </section>
 
+<section class="action-row">
+    <a class="btn brand-action" asp-controller="Orders" asp-action="Document" asp-route-orderId="@Model.OrderId" asp-route-kind="receipt">Receipt PDF</a>
+    <a class="btn brand-action" asp-controller="Orders" asp-action="Document" asp-route-orderId="@Model.OrderId" asp-route-kind="agreement">Agreement PDF</a>
+</section>
+
 <section class="feature-grid">
     <article class="feature-card">
         <span class="feature-kicker">Order ID</span>

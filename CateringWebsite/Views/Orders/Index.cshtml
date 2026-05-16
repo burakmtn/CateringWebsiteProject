@@ -33,6 +33,7 @@ else
                     <th>Quantity</th>
                     <th>Subtotal</th>
                     <th>Status</th>
+                    <th>Documents</th>
                     <th>Review</th>
                 </tr>
             </thead>
@@ -49,6 +50,10 @@ else
                     <td>@item.Quantity</td>
                     <td>@item.Subtotal.ToString("C")</td>
                     <td>@item.Status</td>
+                    <td>
+                        <a class="btn btn-sm brand-action" asp-action="Document" asp-route-orderId="@item.OrderId" asp-route-kind="receipt">Receipt</a>
+                        <a class="btn btn-sm brand-action" asp-action="Document" asp-route-orderId="@item.OrderId" asp-route-kind="agreement">Agreement</a>
+                    </td>
                     <td>
                         @if (item.CanReview)
                         {

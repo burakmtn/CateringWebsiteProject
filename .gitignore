@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# Runtime-generated order documents
+CateringWebsite/GeneratedDocuments/
+
 # User-specific files
 *.rsuser
 *.suo
