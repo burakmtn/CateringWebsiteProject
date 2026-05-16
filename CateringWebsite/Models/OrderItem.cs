@@ -30,4 +30,6 @@ public class OrderItem
     public decimal Subtotal { get; set; }
 
     public ICollection<OrderItemOption> SelectedOptions { get; set; } = [];
+
+    public OrderItemReview? Review { get; set; }
 }

@@ -19,6 +19,10 @@
         <p class="eyebrow">@Model.MenuItem.Caretaker?.DisplayName · @Model.DistanceText</p>
         <h1>@Model.MenuItem.Name</h1>
         <p class="lead-text">@Model.MenuItem.Description</p>
+        <div class="rating-line detail-rating-line">
+            <span>Menu @Model.MenuRating.DisplayText</span>
+            <span>Caretaker @Model.CaretakerRating.DisplayText</span>
+        </div>
         <strong class="detail-price">@Model.MenuItem.Price.ToString("C")</strong>
         <form id="add-to-cart-form" asp-controller="Cart" asp-action="Add" method="post" class="cart-add-form">
             <input type="hidden" name="MenuItemId" value="@Model.MenuItem.Id" />

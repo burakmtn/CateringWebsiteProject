@@ -46,6 +46,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Cart" asp-action="Index">Cart</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a>
+                            </li>
                         }
                         @if (User.Identity?.IsAuthenticated == true)
                         {
@@ -80,6 +83,7 @@
             {
                 <a class="sidebar-link" asp-controller="User" asp-action="Home">Available menus</a>
                 <a class="sidebar-link" asp-controller="Cart" asp-action="Index">Cart</a>
+                <a class="sidebar-link" asp-controller="Orders" asp-action="Index">Order history</a>
                 <a class="sidebar-link" asp-controller="Profile" asp-action="Location">Delivery location</a>
             }
             @if (User.Identity?.IsAuthenticated != true)

@@ -41,6 +41,10 @@ else
                 <span class="feature-kicker">@item.Caretaker?.DisplayName · @nearbyMenu.DistanceText</span>
                 <h2>@item.Name</h2>
                 <p>@item.Description</p>
+                <div class="rating-line">
+                    <span>Menu @nearbyMenu.MenuRating.DisplayText</span>
+                    <span>Caretaker @nearbyMenu.CaretakerRating.DisplayText</span>
+                </div>
             </div>
             <div class="menu-card-footer">
                 <strong>@item.Price.ToString("C")</strong>

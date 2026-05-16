@@ -22,6 +22,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
 
+    public DbSet<OrderItemReview> OrderItemReviews => Set<OrderItemReview>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -92,6 +94,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                 .WithMany()
                 .HasForeignKey(option => option.MenuCustomizationOptionId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<OrderItemReview>(entity =>
+        {
+            entity.Property(review => review.Comment).HasMaxLength(800);
+            entity.Property(review => review.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.HasIndex(review => review.OrderItemId).IsUnique();
+            entity.HasOne(review => review.OrderItem)
+                .WithOne(item => item.Review)
+                .HasForeignKey<OrderItemReview>(review => review.OrderItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(review => review.User)
+                .WithMany()
+                .HasForeignKey(review => review.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(review => review.MenuItem)
+                .WithMany()
+                .HasForeignKey(review => review.MenuItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(review => review.Caretaker)
+                .WithMany()
+                .HasForeignKey(review => review.CaretakerId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

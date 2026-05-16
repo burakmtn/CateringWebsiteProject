@@ -1,0 +1,71 @@
+@model OrderHistoryViewModel
+
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Orders</p>
+        <h1>Order history</h1>
+        <p class="lead-text">Completed order items can be rated once for the menu and caretaker.</p>
+    </div>
+</section>
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="status-message">@statusMessage</div>
+}
+
+@if (Model.Items.Count == 0)
+{
+    <div class="empty-state menu-empty">No completed purchases yet.</div>
+}
+else
+{
+    <section class="table-surface">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Menu</th>
+                    <th>Caretaker</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Status</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <strong>#@item.OrderId</strong>
+                        <span class="table-description">@item.CreatedAt.ToLocalTime().ToString("g")</span>
+                    </td>
+                    <td>@item.MenuName</td>
+                    <td>@item.CaretakerName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Subtotal.ToString("C")</td>
+                    <td>@item.Status</td>
+                    <td>
+                        @if (item.CanReview)
+                        {
+                            <a class="btn btn-sm brand-action" asp-action="Review" asp-route-orderItemId="@item.OrderItemId">Rate</a>
+                        }
+                        else if (item.HasReview)
+                        {
+                            <span class="status-chip">Reviewed</span>
+                        }
+                        else
+                        {
+                            <span class="table-description">Not available</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}

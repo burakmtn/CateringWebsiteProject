@@ -71,6 +71,8 @@ public class UserController : Controller
 
         var distanceByCaretaker = new Dictionary<string, DistanceMatrixResult>();
         var nearbyMenus = new List<NearbyMenuItemViewModel>();
+        var ratingByMenu = await BuildMenuRatingLookupAsync(menuItems.Select(item => item.Id));
+        var ratingByCaretaker = await BuildCaretakerRatingLookupAsync(menuItems.Select(item => item.CaretakerId));
 
         foreach (var menuItem in menuItems)
         {
@@ -94,7 +96,9 @@ public class UserController : Controller
                 nearbyMenus.Add(new NearbyMenuItemViewModel
                 {
                     MenuItem = menuItem,
-                    DistanceText = distance.DistanceText
+                    DistanceText = distance.DistanceText,
+                    MenuRating = ratingByMenu.GetValueOrDefault(menuItem.Id) ?? new RatingSummary(),
+                    CaretakerRating = ratingByCaretaker.GetValueOrDefault(menuItem.CaretakerId) ?? new RatingSummary()
                 });
             }
         }
@@ -142,7 +146,67 @@ public class UserController : Controller
         return View(new MenuDetailsViewModel
         {
             MenuItem = menuItem,
-            DistanceText = distance.DistanceText
+            DistanceText = distance.DistanceText,
+            MenuRating = await GetMenuRatingAsync(menuItem.Id),
+            CaretakerRating = await GetCaretakerRatingAsync(menuItem.CaretakerId)
         });
+    }
+
+    private async Task<Dictionary<int, RatingSummary>> BuildMenuRatingLookupAsync(IEnumerable<int> menuItemIds)
+    {
+        var ids = menuItemIds.Distinct().ToList();
+        return await _dbContext.OrderItemReviews
+            .Where(review => ids.Contains(review.MenuItemId))
+            .GroupBy(review => review.MenuItemId)
+            .Select(group => new
+            {
+                MenuItemId = group.Key,
+                Average = group.Average(review => review.MenuRating),
+                Count = group.Count()
+            })
+            .ToDictionaryAsync(
+                item => item.MenuItemId,
+                item => new RatingSummary { Average = item.Average, Count = item.Count });
+    }
+
+    private async Task<Dictionary<string, RatingSummary>> BuildCaretakerRatingLookupAsync(IEnumerable<string> caretakerIds)
+    {
+        var ids = caretakerIds.Distinct().ToList();
+        return await _dbContext.OrderItemReviews
+            .Where(review => ids.Contains(review.CaretakerId))
+            .GroupBy(review => review.CaretakerId)
+            .Select(group => new
+            {
+                CaretakerId = group.Key,
+                Average = group.Average(review => review.CaretakerRating),
+                Count = group.Count()
+            })
+            .ToDictionaryAsync(
+                item => item.CaretakerId,
+                item => new RatingSummary { Average = item.Average, Count = item.Count });
+    }
+
+    private async Task<RatingSummary> GetMenuRatingAsync(int menuItemId)
+    {
+        var ratings = await _dbContext.OrderItemReviews
+            .Where(review => review.MenuItemId == menuItemId)
+            .Select(review => review.MenuRating)
+            .ToListAsync();
+
+        return ratings.Count == 0
+            ? new RatingSummary()
+            : new RatingSummary { Average = ratings.Average(), Count = ratings.Count };
+    }
+
+    private async Task<RatingSummary> GetCaretakerRatingAsync(string caretakerId)
+    {
+        var ratings = await _dbContext.OrderItemReviews
+            .Where(review => review.CaretakerId == caretakerId)
+            .Select(review => review.CaretakerRating)
+            .ToListAsync();
+
+        return ratings.Count == 0
+            ? new RatingSummary()
+            : new RatingSummary { Average = ratings.Average(), Count = ratings.Count };
     }
 }

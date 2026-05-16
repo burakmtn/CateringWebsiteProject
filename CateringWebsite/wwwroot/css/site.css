@@ -340,6 +340,17 @@ a {
   font-weight: 750;
 }
 
+.status-chip {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 0.7rem;
+  border-radius: 8px;
+  color: var(--teal);
+  background: rgba(11, 107, 92, 0.08);
+  font-weight: 750;
+}
+
 .table-surface {
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -433,6 +444,26 @@ a {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.rating-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  color: var(--teal);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.rating-line span {
+  padding: 0.2rem 0.55rem;
+  border-radius: 8px;
+  background: rgba(11, 107, 92, 0.08);
+}
+
+.detail-rating-line {
+  margin-top: 1rem;
 }
 
 .menu-card strong {
