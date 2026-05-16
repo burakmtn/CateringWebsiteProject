@@ -1,15 +1,14 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav align-items-lg-center">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link nav-pill" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name</a>
+        <span class="nav-link nav-pill">@User.Identity?.Name</span>
     </li>
     <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
             <button type="submit" class="nav-link btn btn-link nav-logout">Logout</button>
         </form>
     </li>
@@ -17,10 +16,10 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
     </li>
     <li class="nav-item">
-        <a class="btn btn-sm brand-action" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="btn btn-sm brand-action" asp-controller="Account" asp-action="Register">Register</a>
     </li>
 }
 </ul>

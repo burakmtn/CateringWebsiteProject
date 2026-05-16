@@ -26,9 +26,24 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#starter-sections">Workspace</a>
-                        </li>
+                        @if (User.IsInRole(AppRoles.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(AppRoles.Caretaker))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Caretaker" asp-action="Index">My menus</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(AppRoles.User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="User" asp-action="Home">Menus</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
@@ -42,10 +57,24 @@
     <div class="app-shell">
         <aside class="sidebar" aria-label="Project sections">
             <a class="sidebar-link active" asp-area="" asp-controller="Home" asp-action="Index">Overview</a>
-            <a class="sidebar-link" href="#starter-sections">Menus</a>
-            <a class="sidebar-link" href="#starter-sections">Roles</a>
-            <a class="sidebar-link" href="#starter-sections">Orders</a>
-            <a class="sidebar-link" href="#starter-sections">Logs</a>
+            @if (User.IsInRole(AppRoles.Admin))
+            {
+                <a class="sidebar-link" asp-controller="Admin" asp-action="Index">Admin</a>
+            }
+            @if (User.IsInRole(AppRoles.Caretaker))
+            {
+                <a class="sidebar-link" asp-controller="Caretaker" asp-action="Index">My menus</a>
+                <a class="sidebar-link" asp-controller="Caretaker" asp-action="Create">Create menu</a>
+            }
+            @if (User.IsInRole(AppRoles.User))
+            {
+                <a class="sidebar-link" asp-controller="User" asp-action="Home">Available menus</a>
+            }
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <a class="sidebar-link" asp-controller="Account" asp-action="Login">Login</a>
+                <a class="sidebar-link" asp-controller="Account" asp-action="Register">Register</a>
+            }
         </aside>
 
         <main class="content-area" role="main">
