@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = "Cart";
+    var search = Context.Request.Query["search"].ToString();
+    var pageNumber = int.TryParse(Context.Request.Query["page"], out var parsedPage) ? Math.Max(1, parsedPage) : 1;
+    var pageSize = 10;
+    var filteredItems = string.IsNullOrWhiteSpace(search)
+        ? Model.Items.ToList()
+        : Model.Items.Where(item =>
+            item.MenuName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+            item.CaretakerName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+            item.SelectedOptions.Any(option => option.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();
+    var totalPages = Math.Max(1, (int)Math.Ceiling(filteredItems.Count / (double)pageSize));
+    pageNumber = Math.Min(pageNumber, totalPages);
+    var visibleItems = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 }
 
 <section class="dashboard-header">
@@ -27,6 +39,11 @@
 }
 else
 {
+    <form class="table-filter" method="get">
+        <input class="form-control" type="search" name="search" value="@search" placeholder="Filter cart" />
+        <button class="btn brand-action" type="submit">Filter</button>
+        <a class="btn btn-light" asp-action="Index">Clear</a>
+    </form>
     <section class="table-surface">
         <table class="table align-middle">
             <thead>
@@ -40,7 +57,13 @@ else
                 </tr>
             </thead>
             <tbody>
-            @foreach (var item in Model.Items)
+            @if (visibleItems.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="empty-state">No cart items match this filter.</td>
+                </tr>
+            }
+            @foreach (var item in visibleItems)
             {
                 <tr>
                     <td>
@@ -82,6 +105,19 @@ else
             </tbody>
         </table>
     </section>
+    <nav class="pagination-row" aria-label="Cart table pages">
+        <span>Page @pageNumber of @totalPages (@filteredItems.Count total)</span>
+        <div>
+            @if (pageNumber > 1)
+            {
+                <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@search" asp-route-page="@(pageNumber - 1)">Previous</a>
+            }
+            @if (pageNumber < totalPages)
+            {
+                <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@search" asp-route-page="@(pageNumber + 1)">Next</a>
+            }
+        </div>
+    </nav>
     <section class="cart-total">
         <span>Total</span>
         <strong>@Model.TotalAmount.ToString("C")</strong>

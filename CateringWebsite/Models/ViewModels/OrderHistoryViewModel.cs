@@ -2,5 +2,5 @@ namespace CateringWebsite.Models.ViewModels;
 
 public class OrderHistoryViewModel
 {
-    public IReadOnlyList<OrderHistoryItemViewModel> Items { get; set; } = [];
+    public PagedListViewModel<OrderHistoryItemViewModel> Items { get; set; } = new();
 }

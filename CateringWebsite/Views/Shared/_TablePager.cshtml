@@ -1,0 +1,19 @@
+@model dynamic
+
+@{
+    var actionName = ViewData["ActionName"] as string;
+}
+
+<nav class="pagination-row" aria-label="Table pages">
+    <span>Page @Model.PageNumber of @Model.TotalPages (@Model.TotalItems total)</span>
+    <div>
+        @if (Model.HasPreviousPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="@actionName" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
+        }
+        @if (Model.HasNextPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="@actionName" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber + 1)">Next</a>
+        }
+    </div>
+</nav>

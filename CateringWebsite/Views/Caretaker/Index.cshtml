@@ -1,4 +1,4 @@
-@model IReadOnlyList<MenuItem>
+@model PagedListViewModel<MenuItem>
 
 @{
     ViewData["Title"] = "Caretaker Menus";
@@ -12,6 +12,12 @@
     </div>
     <a class="btn brand-action" asp-action="Create">Create menu item</a>
 </section>
+
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Filter menu items" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Index">Clear</a>
+</form>
 
 @if (TempData["StatusMessage"] is string statusMessage)
 {
@@ -39,7 +45,7 @@
             </tr>
         </thead>
         <tbody>
-        @if (Model.Count == 0)
+        @if (Model.Items.Count == 0)
         {
             <tr>
                 <td colspan="6" class="empty-state">No menu items yet.</td>
@@ -47,7 +53,7 @@
         }
         else
         {
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr>
                     <td>
@@ -81,3 +87,17 @@
         </tbody>
     </table>
 </section>
+
+<nav class="pagination-row" aria-label="Menu table pages">
+    <span>Page @Model.PageNumber of @Model.TotalPages (@Model.TotalItems total)</span>
+    <div>
+        @if (Model.HasPreviousPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
+        }
+        @if (Model.HasNextPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Search" asp-route-page="@(Model.PageNumber + 1)">Next</a>
+        }
+    </div>
+</nav>

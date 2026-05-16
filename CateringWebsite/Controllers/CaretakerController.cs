@@ -28,15 +28,22 @@ public class CaretakerController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string search = "", int page = 1)
     {
         var caretakerId = _userManager.GetUserId(User);
         var caretaker = await _userManager.GetUserAsync(User);
-        var menuItems = await _dbContext.MenuItems
+        var query = _dbContext.MenuItems
             .Include(item => item.CustomizationOptions)
-            .Where(item => item.CaretakerId == caretakerId)
-            .OrderByDescending(item => item.CreatedAt)
-            .ToListAsync();
+            .Where(item => item.CaretakerId == caretakerId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(item =>
+                item.Name.Contains(search) ||
+                item.Description.Contains(search));
+        }
+
+        var menuItems = await ToPagedListAsync(query.OrderByDescending(item => item.CreatedAt), search, page);
 
         ViewData["LocationMissing"] = string.IsNullOrWhiteSpace(caretaker?.LocationAddress);
         return View(menuItems);
@@ -277,6 +284,30 @@ public class CaretakerController : Controller
         }
 
         await Task.CompletedTask;
+    }
+
+    private static async Task<PagedListViewModel<MenuItem>> ToPagedListAsync(
+        IQueryable<MenuItem> query,
+        string search,
+        int page,
+        int pageSize = 10)
+    {
+        var pageNumber = Math.Max(1, page);
+        var totalItems = await query.CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+        pageNumber = Math.Min(pageNumber, totalPages);
+
+        return new PagedListViewModel<MenuItem>
+        {
+            Search = search,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            Items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync()
+        };
     }
 
     private async Task<string?> SaveImageAsync(IFormFile? imageFile)

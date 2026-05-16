@@ -29,32 +29,58 @@ public class OrdersController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string search = "", int page = 1)
     {
         var userId = _userManager.GetUserId(User);
-        var orderItems = await _dbContext.OrderItems
+        var query = _dbContext.OrderItems
             .Include(item => item.Order)
             .Include(item => item.Caretaker)
             .Include(item => item.Review)
-            .Where(item => item.Order != null && item.Order.UserId == userId)
+            .Where(item => item.Order != null && item.Order.UserId == userId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(item =>
+                item.MenuName.Contains(search) ||
+                item.Caretaker!.Email!.Contains(search) ||
+                item.Order!.Status.Contains(search) ||
+                item.OrderId.ToString().Contains(search));
+        }
+
+        var totalItems = await query.CountAsync();
+        var pageSize = 10;
+        var pageNumber = Math.Max(1, page);
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+        pageNumber = Math.Min(pageNumber, totalPages);
+
+        var orderItems = await query
             .OrderByDescending(item => item.Order!.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         var viewModel = new OrderHistoryViewModel
         {
-            Items = orderItems.Select(item => new OrderHistoryItemViewModel
+            Items = new PagedListViewModel<OrderHistoryItemViewModel>
             {
-                OrderId = item.OrderId,
-                OrderItemId = item.Id,
-                MenuName = item.MenuName,
-                CaretakerName = item.Caretaker?.DisplayName ?? item.Caretaker?.Email ?? "Caretaker",
-                Quantity = item.Quantity,
-                Subtotal = item.Subtotal,
-                Status = item.Order?.Status ?? string.Empty,
-                CreatedAt = item.Order?.CreatedAt ?? DateTime.UtcNow,
-                CanReview = item.Order?.Status == "Completed" && item.Review is null,
-                HasReview = item.Review is not null
-            }).ToList()
+                Search = search,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                Items = orderItems.Select(item => new OrderHistoryItemViewModel
+                {
+                    OrderId = item.OrderId,
+                    OrderItemId = item.Id,
+                    MenuName = item.MenuName,
+                    CaretakerName = item.Caretaker?.DisplayName ?? item.Caretaker?.Email ?? "Caretaker",
+                    Quantity = item.Quantity,
+                    Subtotal = item.Subtotal,
+                    Status = item.Order?.Status ?? string.Empty,
+                    CreatedAt = item.Order?.CreatedAt ?? DateTime.UtcNow,
+                    CanReview = item.Order?.Status == "Completed" && item.Review is null,
+                    HasReview = item.Review is not null
+                }).ToList()
+            }
         };
 
         return View(viewModel);

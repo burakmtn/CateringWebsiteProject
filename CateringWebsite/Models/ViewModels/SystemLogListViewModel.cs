@@ -2,5 +2,5 @@ namespace CateringWebsite.Models.ViewModels;
 
 public class SystemLogListViewModel
 {
-    public IReadOnlyList<SystemLogListItemViewModel> Logs { get; set; } = [];
+    public PagedListViewModel<SystemLogListItemViewModel> Logs { get; set; } = new();
 }

@@ -12,7 +12,13 @@
     </div>
 </section>
 
-@if (Model.Logs.Count == 0)
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Logs.Search" placeholder="Filter logs" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Logs">Clear</a>
+</form>
+
+@if (Model.Logs.Items.Count == 0)
 {
     <div class="empty-state menu-empty">No logs have been recorded yet.</div>
 }
@@ -32,7 +38,7 @@ else
                 </tr>
             </thead>
             <tbody>
-            @foreach (var log in Model.Logs)
+            @foreach (var log in Model.Logs.Items)
             {
                 <tr>
                     <td>@log.CreatedAt.ToLocalTime().ToString("g")</td>
@@ -57,3 +63,5 @@ else
         </table>
     </section>
 }
+
+@await Html.PartialAsync("_TablePager", Model.Logs, new ViewDataDictionary(ViewData) { ["ActionName"] = "Logs" })

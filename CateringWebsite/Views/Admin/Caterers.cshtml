@@ -1,0 +1,45 @@
+@model PagedListViewModel<AdminUserListItemViewModel>
+
+@{
+    ViewData["Title"] = "Caterers";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Caterers</h1>
+        <p class="lead-text">Inspect caretaker accounts and their service locations.</p>
+    </div>
+</section>
+
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Filter caterers" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Caterers">Clear</a>
+</form>
+
+<section class="table-surface">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model.Items)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@(string.IsNullOrWhiteSpace(user.DisplayName) ? "-" : user.DisplayName)</td>
+                <td>@(string.IsNullOrWhiteSpace(user.LocationAddress) ? "-" : user.LocationAddress)</td>
+                <td>@user.CreatedAt.ToLocalTime().ToString("g")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+@await Html.PartialAsync("_TablePager", Model, new ViewDataDictionary(ViewData) { ["ActionName"] = "Caterers" })

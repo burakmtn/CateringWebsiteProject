@@ -1,0 +1,49 @@
+@model PagedListViewModel<AdminOrderListItemViewModel>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Orders</h1>
+        <p class="lead-text">Inspect completed orders with filtering and pagination.</p>
+    </div>
+</section>
+
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Filter orders" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Orders">Clear</a>
+</form>
+
+<section class="table-surface">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var order in Model.Items)
+        {
+            <tr>
+                <td>#@order.OrderId</td>
+                <td>@order.Customer</td>
+                <td><span class="status-chip">@order.Status</span></td>
+                <td>@order.ItemCount</td>
+                <td>@order.TotalAmount.ToString("C")</td>
+                <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+@await Html.PartialAsync("_TablePager", Model, new ViewDataDictionary(ViewData) { ["ActionName"] = "Orders" })

@@ -12,12 +12,18 @@
     </div>
 </section>
 
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Items.Search" placeholder="Filter orders" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Index">Clear</a>
+</form>
+
 @if (TempData["StatusMessage"] is string statusMessage)
 {
     <div class="status-message">@statusMessage</div>
 }
 
-@if (Model.Items.Count == 0)
+@if (Model.Items.Items.Count == 0)
 {
     <div class="empty-state menu-empty">No completed purchases yet.</div>
 }
@@ -38,7 +44,7 @@ else
                 </tr>
             </thead>
             <tbody>
-            @foreach (var item in Model.Items)
+            @foreach (var item in Model.Items.Items)
             {
                 <tr>
                     <td>
@@ -74,3 +80,17 @@ else
         </table>
     </section>
 }
+
+<nav class="pagination-row" aria-label="Order table pages">
+    <span>Page @Model.Items.PageNumber of @Model.Items.TotalPages (@Model.Items.TotalItems total)</span>
+    <div>
+        @if (Model.Items.HasPreviousPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Items.Search" asp-route-page="@(Model.Items.PageNumber - 1)">Previous</a>
+        }
+        @if (Model.Items.HasNextPage)
+        {
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.Items.Search" asp-route-page="@(Model.Items.PageNumber + 1)">Next</a>
+        }
+    </div>
+</nav>

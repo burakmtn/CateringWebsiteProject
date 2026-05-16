@@ -1,0 +1,51 @@
+@model PagedListViewModel<AdminRatingListItemViewModel>
+
+@{
+    ViewData["Title"] = "Ratings";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Ratings and comments</h1>
+        <p class="lead-text">Inspect completed-order ratings with filtering and pagination.</p>
+    </div>
+</section>
+
+<form class="table-filter" method="get">
+    <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Filter ratings" />
+    <button class="btn brand-action" type="submit">Filter</button>
+    <a class="btn btn-light" asp-action="Ratings">Clear</a>
+</form>
+
+<section class="table-surface">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Order Item</th>
+                <th>User</th>
+                <th>Menu</th>
+                <th>Caretaker</th>
+                <th>Ratings</th>
+                <th>Comment</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var rating in Model.Items)
+        {
+            <tr>
+                <td>#@rating.OrderItemId</td>
+                <td>@rating.User</td>
+                <td>@rating.MenuName</td>
+                <td>@rating.Caretaker</td>
+                <td>Menu @rating.MenuRating / Caretaker @rating.CaretakerRating</td>
+                <td>@rating.Comment</td>
+                <td>@rating.CreatedAt.ToLocalTime().ToString("g")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+@await Html.PartialAsync("_TablePager", Model, new ViewDataDictionary(ViewData) { ["ActionName"] = "Ratings" })
