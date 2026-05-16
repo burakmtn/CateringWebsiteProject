@@ -1,0 +1,89 @@
+@model CartViewModel
+
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Cart</p>
+        <h1>Your order</h1>
+        <p class="lead-text">Review quantities, customization options, subtotals, and total order amount.</p>
+    </div>
+    @if (Model.Items.Count > 0)
+    {
+        <a class="btn brand-action" asp-action="Payment">Proceed to payment</a>
+    }
+</section>
+
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    <div class="status-message">@statusMessage</div>
+}
+
+@if (Model.Items.Count == 0)
+{
+    <div class="empty-state menu-empty">Your cart is empty.</div>
+}
+else
+{
+    <section class="table-surface">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Options</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <strong>@item.MenuName</strong>
+                        <span class="table-description">@item.CaretakerName</span>
+                    </td>
+                    <td>
+                        @if (item.SelectedOptions.Count == 0)
+                        {
+                            <span class="table-description">No customizations</span>
+                        }
+                        else
+                        {
+                            <ul class="compact-list">
+                            @foreach (var option in item.SelectedOptions)
+                            {
+                                <li>@option</li>
+                            }
+                            </ul>
+                        }
+                    </td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>
+                        <form asp-action="UpdateQuantity" method="post" class="inline-form">
+                            <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                            <input class="form-control quantity-input" name="quantity" type="number" value="@item.Quantity" min="1" max="99" />
+                            <button class="btn btn-sm btn-light" type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>@item.Subtotal.ToString("C")</td>
+                    <td>
+                        <form asp-action="Remove" method="post">
+                            <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+    <section class="cart-total">
+        <span>Total</span>
+        <strong>@Model.TotalAmount.ToString("C")</strong>
+    </section>
+}

@@ -1,0 +1,65 @@
+@model PaymentViewModel
+
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<section class="dashboard-header">
+    <div>
+        <p class="eyebrow">Payment simulation</p>
+        <h1>Complete payment</h1>
+        <p class="lead-text">This is a simulation only. Do not use real card information.</p>
+    </div>
+</section>
+
+<section class="checkout-grid">
+    <div class="auth-card">
+        <form asp-action="Payment" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-field">
+                <label asp-for="CardHolder"></label>
+                <input asp-for="CardHolder" class="form-control" autocomplete="off" />
+                <span asp-validation-for="CardHolder" class="text-danger"></span>
+            </div>
+            <div class="form-field">
+                <label asp-for="CardNumber"></label>
+                <input asp-for="CardNumber" class="form-control" autocomplete="off" placeholder="4111111111111111" />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label asp-for="Expiry"></label>
+                    <input asp-for="Expiry" class="form-control" autocomplete="off" placeholder="12/30" />
+                    <span asp-validation-for="Expiry" class="text-danger"></span>
+                </div>
+                <div class="form-field">
+                    <label asp-for="Cvv"></label>
+                    <input asp-for="Cvv" class="form-control" autocomplete="off" placeholder="123" />
+                    <span asp-validation-for="Cvv" class="text-danger"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn brand-action auth-submit">Simulate payment</button>
+        </form>
+    </div>
+
+    <aside class="summary-panel">
+        <h2>Order summary</h2>
+        <ul class="summary-list">
+        @foreach (var item in Model.Cart.Items)
+        {
+            <li>
+                <span>@item.Quantity x @item.MenuName</span>
+                <strong>@item.Subtotal.ToString("C")</strong>
+            </li>
+        }
+        </ul>
+        <div class="cart-total compact-total">
+            <span>Total</span>
+            <strong>@Model.Cart.TotalAmount.ToString("C")</strong>
+        </div>
+    </aside>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
