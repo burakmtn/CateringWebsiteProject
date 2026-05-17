@@ -54,7 +54,7 @@ public static class SimplePdfWriter
 
         foreach (var line in page)
         {
-            stream.Append(HexText(line));
+            stream.Append(PdfLiteralText(line));
             stream.AppendLine(" Tj");
             stream.AppendLine("0 -14 Td");
         }
@@ -110,10 +110,17 @@ public static class SimplePdfWriter
         return wrapped;
     }
 
-    private static string HexText(string value)
+    private static string PdfLiteralText(string value)
     {
-        var bytes = Encoding.BigEndianUnicode.GetBytes(value);
-        return $"<FEFF{Convert.ToHexString(bytes)}>";
+        return $"({EscapePdfText(value)})";
+    }
+
+    private static string EscapePdfText(string value)
+    {
+        return value
+            .Replace("\\", "\\\\")
+            .Replace("(", "\\(")
+            .Replace(")", "\\)");
     }
 
     private static void WriteAscii(Stream stream, string value)

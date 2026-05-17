@@ -37,10 +37,7 @@ public class OrderDocumentService : IOrderDocumentService
     public async Task<OrderDocumentFile?> GetOrderDocumentAsync(int orderId, OrderDocumentKind kind)
     {
         var path = GetDocumentPath(orderId, kind);
-        if (!File.Exists(path))
-        {
-            await GenerateOrderDocumentsAsync(orderId);
-        }
+        await GenerateOrderDocumentsAsync(orderId);
 
         return File.Exists(path)
             ? new OrderDocumentFile(path, Path.GetFileName(path))
