@@ -13,6 +13,8 @@ namespace CateringWebsite.Controllers;
 [Authorize(Roles = AppRoles.User)]
 public class UserController : Controller
 {
+    private const string DistanceUnavailableText = "Distance unavailable";
+
     private readonly ApplicationDbContext _dbContext;
     private readonly IGoogleDistanceService _distanceService;
     private readonly GoogleMapsOptions _googleMapsOptions;
@@ -57,12 +59,6 @@ public class UserController : Controller
             return View(viewModel);
         }
 
-        if (!viewModel.GoogleMapsConfigured)
-        {
-            viewModel.StatusMessage = "Google Maps API key is not configured, so nearby menus cannot be calculated.";
-            return View(viewModel);
-        }
-
         var menuItems = await _dbContext.MenuItems
             .Include(item => item.Caretaker)
             .Include(item => item.CustomizationOptions)
@@ -82,6 +78,18 @@ public class UserController : Controller
                 continue;
             }
 
+            if (!viewModel.GoogleMapsConfigured)
+            {
+                nearbyMenus.Add(new NearbyMenuItemViewModel
+                {
+                    MenuItem = menuItem,
+                    DistanceText = DistanceUnavailableText,
+                    MenuRating = ratingByMenu.GetValueOrDefault(menuItem.Id) ?? new RatingSummary(),
+                    CaretakerRating = ratingByCaretaker.GetValueOrDefault(menuItem.CaretakerId) ?? new RatingSummary()
+                });
+                continue;
+            }
+
             if (!distanceByCaretaker.TryGetValue(menuItem.CaretakerId, out var distance))
             {
                 distance = await _distanceService.GetDrivingDistanceAsync(
@@ -91,8 +99,7 @@ public class UserController : Controller
                 distanceByCaretaker[menuItem.CaretakerId] = distance;
             }
 
-            if (distance.IsSuccess &&
-                distance.DistanceMeters <= _googleMapsOptions.NearbyDistanceKm * 1000)
+            if (distance.IsSuccess && distance.DistanceMeters <= _googleMapsOptions.NearbyDistanceKm * 1000)
             {
                 nearbyMenus.Add(new NearbyMenuItemViewModel
                 {
@@ -102,6 +109,22 @@ public class UserController : Controller
                     CaretakerRating = ratingByCaretaker.GetValueOrDefault(menuItem.CaretakerId) ?? new RatingSummary()
                 });
             }
+            else if (!distance.IsSuccess)
+            {
+                viewModel.StatusMessage = "Google Maps distance could not be calculated, so menus are shown without distance filtering.";
+                nearbyMenus.Add(new NearbyMenuItemViewModel
+                {
+                    MenuItem = menuItem,
+                    DistanceText = DistanceUnavailableText,
+                    MenuRating = ratingByMenu.GetValueOrDefault(menuItem.Id) ?? new RatingSummary(),
+                    CaretakerRating = ratingByCaretaker.GetValueOrDefault(menuItem.CaretakerId) ?? new RatingSummary()
+                });
+            }
+        }
+
+        if (!viewModel.GoogleMapsConfigured && nearbyMenus.Count > 0)
+        {
+            viewModel.StatusMessage = "Google Maps API key is not configured, so menus are shown without distance filtering.";
         }
 
         viewModel.Menus = nearbyMenus;
@@ -128,27 +151,35 @@ public class UserController : Controller
         }
 
         if (string.IsNullOrWhiteSpace(user.LocationAddress) ||
-            string.IsNullOrWhiteSpace(menuItem.Caretaker?.LocationAddress) ||
-            string.IsNullOrWhiteSpace(_googleMapsOptions.ApiKey))
+            string.IsNullOrWhiteSpace(menuItem.Caretaker?.LocationAddress))
         {
             return Forbid();
         }
 
-        var distance = await _distanceService.GetDrivingDistanceAsync(
-            user.LocationAddress,
-            menuItem.Caretaker.LocationAddress,
-            cancellationToken);
+        var distanceText = DistanceUnavailableText;
 
-        if (!distance.IsSuccess ||
-            distance.DistanceMeters > _googleMapsOptions.NearbyDistanceKm * 1000)
+        if (!string.IsNullOrWhiteSpace(_googleMapsOptions.ApiKey))
         {
-            return Forbid();
+            var distance = await _distanceService.GetDrivingDistanceAsync(
+                user.LocationAddress,
+                menuItem.Caretaker.LocationAddress,
+                cancellationToken);
+
+            if (distance.IsSuccess)
+            {
+                if (distance.DistanceMeters > _googleMapsOptions.NearbyDistanceKm * 1000)
+                {
+                    return Forbid();
+                }
+
+                distanceText = distance.DistanceText;
+            }
         }
 
         return View(new MenuDetailsViewModel
         {
             MenuItem = menuItem,
-            DistanceText = distance.DistanceText,
+            DistanceText = distanceText,
             MenuRating = await GetMenuRatingAsync(menuItem.Id),
             CaretakerRating = await GetCaretakerRatingAsync(menuItem.CaretakerId)
         });

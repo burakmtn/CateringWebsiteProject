@@ -9,6 +9,9 @@
 # Runtime-generated order documents
 CateringWebsite/GeneratedDocuments/
 
+# Runtime-uploaded menu images
+CateringWebsite/wwwroot/uploads/
+
 # User-specific files
 *.rsuser
 *.suo
