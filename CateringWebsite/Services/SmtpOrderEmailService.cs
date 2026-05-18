@@ -175,7 +175,7 @@ public class SmtpOrderEmailService : IOrderEmailService
 
         return string.IsNullOrWhiteSpace(user.DisplayName)
             ? ValueOrDash(user.Email)
-            : $"{user.DisplayName} ({ValueOrDash(user.Email)})";
+            : user.DisplayName;
     }
 
     private static string ValueOrDash(string? value)
