@@ -7,9 +7,7 @@ SofraLink is a full-stack catering website built with ASP.NET Core MVC. It suppo
 - `CateringWebsite/`: ASP.NET Core MVC application source code.
 - `DatabaseScripts/`: SQL Server database generation script and database setup notes.
 - `ProjectReport.md`: project report with architecture, features, database design, and limitations.
-- `DemoVideoPlan.md`: suggested demo video flow.
 - `References.md`: references and resources used during development.
-- `Full-Stack-Catering-Website-Project.md`: original project requirements.
 - `CateringWebsiteProject.sln`: Visual Studio / .NET solution file.
 
 ## Technologies
@@ -122,7 +120,6 @@ See `DatabaseScripts/README.md` for script-specific usage notes.
 ## Documentation
 
 - `ProjectReport.md` explains the implemented system and design decisions.
-- `DemoVideoPlan.md` gives a structured demo recording plan.
 - `References.md` lists external resources.
 - `CateringWebsite/README.md` documents the application folder in more technical detail.
 
