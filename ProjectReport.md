@@ -1,5 +1,10 @@
 # SofraLink Project Report
 
+## Submission Links
+
+- GitHub repository: https://github.com/burakmtn/CateringWebsiteProject
+- Unlisted YouTube demo video: https://www.youtube.com/watch?v=JR44BO6Tr44
+
 ## 1. Project Overview
 
 SofraLink is a full-stack catering website built with ASP.NET Core MVC. The system allows users to browse nearby catering menu items, customize orders, use a simulated payment flow, receive order documents, submit ratings, and review order history. Caretakers manage their own menu items and service locations. Admin users monitor platform data, logs, users, caterers, orders, and ratings.
