@@ -386,6 +386,14 @@ a {
   font-size: 0.88rem;
 }
 
+.location-button {
+  justify-self: start;
+}
+
+.location-status:empty {
+  display: none;
+}
+
 .form-image-preview {
   width: 160px;
   aspect-ratio: 4 / 3;

@@ -15,7 +15,11 @@
             <div class="form-field">
                 <label asp-for="LocationAddress">@Model.RoleLabel</label>
                 <textarea asp-for="LocationAddress" class="form-control" rows="3" placeholder="Street, district, city, country"></textarea>
+                <button type="button" class="btn btn-light location-button" id="useCurrentLocation">
+                    Use my location
+                </button>
                 <span asp-validation-for="LocationAddress" class="text-danger"></span>
+                <span class="field-hint location-status" id="locationStatus" role="status" aria-live="polite"></span>
                 <span class="field-hint">This address is sent to Google Distance Matrix API for nearby restaurant checks.</span>
             </div>
 
@@ -29,4 +33,48 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const locationButton = document.getElementById("useCurrentLocation");
+            const locationInput = document.getElementById("LocationAddress");
+            const locationStatus = document.getElementById("locationStatus");
+
+            if (!locationButton || !locationInput || !locationStatus) {
+                return;
+            }
+
+            if (!("geolocation" in navigator)) {
+                locationButton.disabled = true;
+                locationStatus.textContent = "Your browser does not support location sharing.";
+                return;
+            }
+
+            locationButton.addEventListener("click", () => {
+                locationButton.disabled = true;
+                locationButton.textContent = "Finding location...";
+                locationStatus.textContent = "Please allow location access in your browser.";
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude.toFixed(6);
+                        const longitude = position.coords.longitude.toFixed(6);
+                        locationInput.value = `${latitude},${longitude}`;
+                        locationInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        locationStatus.textContent = "Location added. Save to use it for nearby menu filtering.";
+                        locationButton.disabled = false;
+                        locationButton.textContent = "Use my location";
+                    },
+                    () => {
+                        locationStatus.textContent = "Location permission was blocked or unavailable.";
+                        locationButton.disabled = false;
+                        locationButton.textContent = "Use my location";
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000
+                    });
+            });
+        })();
+    </script>
 }
