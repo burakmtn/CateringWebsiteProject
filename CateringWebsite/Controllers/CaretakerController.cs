@@ -28,7 +28,7 @@ public class CaretakerController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index(string search = "", int page = 1)
+    public async Task<IActionResult> Index(string search = "", int page = 1, int reviewPage = 1)
     {
         var caretakerId = _userManager.GetUserId(User);
         var caretaker = await _userManager.GetUserAsync(User);
@@ -49,6 +49,7 @@ public class CaretakerController : Controller
             .Where(item => item.CaretakerId == caretakerId);
         var caretakerReviews = _dbContext.OrderItemReviews
             .Where(review => review.CaretakerId == caretakerId);
+        var reviews = await ToReviewPagedListAsync(caretakerReviews.OrderByDescending(review => review.CreatedAt), reviewPage);
 
         return View(new CaretakerDashboardViewModel
         {
@@ -63,6 +64,7 @@ public class CaretakerController : Controller
             TotalRevenue = await orderItems.SumAsync(item => (decimal?)item.Subtotal) ?? 0m,
             AverageCaretakerRating = await caretakerReviews.AverageAsync(review => (double?)review.CaretakerRating),
             ReviewCount = await caretakerReviews.CountAsync(),
+            Reviews = reviews,
             LocationMissing = string.IsNullOrWhiteSpace(caretaker?.LocationAddress)
         });
     }
@@ -215,6 +217,18 @@ public class CaretakerController : Controller
         return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
+    private static string DisplayUser(ApplicationUser? user)
+    {
+        if (user is null)
+        {
+            return "User";
+        }
+
+        return string.IsNullOrWhiteSpace(user.DisplayName)
+            ? user.Email ?? "User"
+            : $"{user.DisplayName} ({user.Email})";
+    }
+
     private static void ApplyCustomizationOptions(MenuItem menuItem, MenuItemFormViewModel model)
     {
         foreach (var option in ParseOptionLines(model.RemovableIngredientsText, "Removable ingredients", "Removable", allowPrices: false))
@@ -325,6 +339,43 @@ public class CaretakerController : Controller
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync()
+        };
+    }
+
+    private static async Task<PagedListViewModel<CaretakerReviewListItemViewModel>> ToReviewPagedListAsync(
+        IQueryable<OrderItemReview> query,
+        int page,
+        int pageSize = 10)
+    {
+        var pageNumber = Math.Max(1, page);
+        var totalItems = await query.CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+        pageNumber = Math.Min(pageNumber, totalPages);
+
+        var reviews = await query
+            .AsNoTracking()
+            .Include(review => review.User)
+            .Include(review => review.MenuItem)
+            .Include(review => review.OrderItem)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedListViewModel<CaretakerReviewListItemViewModel>
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            Items = reviews.Select(review => new CaretakerReviewListItemViewModel
+            {
+                OrderItemId = review.OrderItemId,
+                User = DisplayUser(review.User),
+                MenuName = review.MenuItem?.Name ?? review.OrderItem?.MenuName ?? "Menu item",
+                MenuRating = review.MenuRating,
+                CaretakerRating = review.CaretakerRating,
+                Comment = review.Comment,
+                CreatedAt = review.CreatedAt
+            }).ToList()
         };
     }
 

@@ -16,5 +16,7 @@ public class CaretakerDashboardViewModel
 
     public int ReviewCount { get; set; }
 
+    public PagedListViewModel<CaretakerReviewListItemViewModel> Reviews { get; set; } = new();
+
     public bool LocationMissing { get; set; }
 }

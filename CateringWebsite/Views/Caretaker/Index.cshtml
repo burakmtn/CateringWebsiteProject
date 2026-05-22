@@ -36,7 +36,80 @@
     </article>
 </section>
 
+<section class="table-surface">
+    <div class="section-heading">
+        <p class="eyebrow">Reviews</p>
+        <h2>Recent feedback</h2>
+    </div>
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Order Item</th>
+                <th>User</th>
+                <th>Menu</th>
+                <th>Ratings</th>
+                <th>Comment</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model.Reviews.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="6" class="empty-state">No reviews for your menus yet.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var review in Model.Reviews.Items)
+            {
+                <tr>
+                    <td>#@review.OrderItemId</td>
+                    <td>@review.User</td>
+                    <td>@review.MenuName</td>
+                    <td>Menu @review.MenuRating / Caretaker @review.CaretakerRating</td>
+                    <td>
+                        @if (string.IsNullOrWhiteSpace(review.Comment))
+                        {
+                            <span class="table-description">No comment</span>
+                        }
+                        else
+                        {
+                            @review.Comment
+                        }
+                    </td>
+                    <td>@review.CreatedAt.ToLocalTime().ToString("g")</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</section>
+
+<nav class="pagination-row" aria-label="Review table pages">
+    <span>Page @Model.Reviews.PageNumber of @Model.Reviews.TotalPages (@Model.Reviews.TotalItems total)</span>
+    <div>
+        @if (Model.Reviews.HasPreviousPage)
+        {
+            <a class="btn btn-sm btn-light"
+               asp-action="Index"
+               asp-route-search="@Model.MenuItems.Search"
+               asp-route-page="@Model.MenuItems.PageNumber"
+               asp-route-reviewPage="@(Model.Reviews.PageNumber - 1)">Previous</a>
+        }
+        @if (Model.Reviews.HasNextPage)
+        {
+            <a class="btn btn-sm btn-light"
+               asp-action="Index"
+               asp-route-search="@Model.MenuItems.Search"
+               asp-route-page="@Model.MenuItems.PageNumber"
+               asp-route-reviewPage="@(Model.Reviews.PageNumber + 1)">Next</a>
+        }
+    </div>
+</nav>
+
 <form class="table-filter" method="get">
+    <input type="hidden" name="reviewPage" value="@Model.Reviews.PageNumber" />
     <input class="form-control" type="search" name="search" value="@Model.MenuItems.Search" placeholder="Filter menu items" />
     <button class="btn brand-action" type="submit">Filter</button>
     <a class="btn btn-light" asp-action="Index">Clear</a>
@@ -116,11 +189,11 @@
     <div>
         @if (Model.MenuItems.HasPreviousPage)
         {
-            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber - 1)">Previous</a>
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber - 1)" asp-route-reviewPage="@Model.Reviews.PageNumber">Previous</a>
         }
         @if (Model.MenuItems.HasNextPage)
         {
-            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber + 1)">Next</a>
+            <a class="btn btn-sm btn-light" asp-action="Index" asp-route-search="@Model.MenuItems.Search" asp-route-page="@(Model.MenuItems.PageNumber + 1)" asp-route-reviewPage="@Model.Reviews.PageNumber">Next</a>
         }
     </div>
 </nav>
